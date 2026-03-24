@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Senhas Fortes</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="background-grid" aria-hidden="true"></div>
+
+  <main class="page-shell">
+    <header class="page-header">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <path d="M12 2 5 5v6c0 5 3.4 9.4 7 11 3.6-1.6 7-6 7-11V5l-7-3Zm0 4.2 3 1.3v3.4c0 2.9-1.7 5.7-3 6.8-1.3-1.1-3-3.9-3-6.8V7.5l3-1.3Z"></path>
+        </svg>
+      </div>
+      <h1>Gerador de Senhas Fortes</h1>
+    </header>
+
+    <section class="cards-grid">
+      <article class="card">
+        <div class="card-header">
+          <div class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 2 5 5v6c0 5 3.4 9.4 7 11 3.6-1.6 7-6 7-11V5l-7-3Z"></path>
+            </svg>
+          </div>
+          <h2>Configurações</h2>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="password-length">Tamanho mínimo da senha</label>
+          <input id="password-length" name="password-length" type="number" min="4" max="128" value="16">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="password-start">Como a senha deve começar</label>
+          <select id="password-start" name="password-start">
+            <option value="random">Totalmente aleatoria</option>
+            <option value="uppercase">Com letra maiuscula</option>
+            <option value="lowercase">Com letra minuscula</option>
+            <option value="numbers">Com numero</option>
+            <option value="symbols">Com simbolo</option>
+          </select>
+        </div>
+
+        <button id="generate-button" type="button" class="primary-button">
+          <span class="button-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 4V1L7 6l5 5V7c2.8 0 5 2.2 5 5a5 5 0 0 1-8.5 3.5l-1.4 1.4A7 7 0 1 0 12 5Z"></path>
+            </svg>
+          </span>
+          Gerar senha
+        </button>
+
+        <p id="form-message" class="message" role="status" aria-live="polite"></p>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <div class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 2 5 5v6c0 5 3.4 9.4 7 11 3.6-1.6 7-6 7-11V5l-7-3Z"></path>
+            </svg>
+          </div>
+          <h2>Caracteres</h2>
+        </div>
+
+        <div class="toggle-list">
+          <label class="switch-row" for="include-uppercase">
+            <span class="switch-copy">Maiúsculas (A-Z)</span>
+            <span class="switch-control">
+              <input id="include-uppercase" type="checkbox" checked>
+              <span class="switch-slider"></span>
+            </span>
+          </label>
+
+          <label class="switch-row" for="include-lowercase">
+            <span class="switch-copy">Minúsculas (a-z)</span>
+            <span class="switch-control">
+              <input id="include-lowercase" type="checkbox" checked>
+              <span class="switch-slider"></span>
+            </span>
+          </label>
+
+          <label class="switch-row" for="include-numbers">
+            <span class="switch-copy">Números (0-9)</span>
+            <span class="switch-control">
+              <input id="include-numbers" type="checkbox" checked>
+              <span class="switch-slider"></span>
+            </span>
+          </label>
+
+          <label class="switch-row" for="include-symbols">
+            <span class="switch-copy">Incluir símbolos</span>
+            <span class="switch-control">
+              <input id="include-symbols" type="checkbox" checked>
+              <span class="switch-slider"></span>
+            </span>
+          </label>
+
+          <label class="switch-row" for="exclude-ambiguous">
+            <span class="switch-copy switch-copy-info">
+              Excluir ambíguos
+              <span class="info-badge" tabindex="0" aria-label="Exclui: O, 0, I, l, 1">
+                i
+                <span class="tooltip">Exclui: O, 0, I, l, 1</span>
+              </span>
+            </span>
+            <span class="switch-control">
+              <input id="exclude-ambiguous" type="checkbox" checked>
+              <span class="switch-slider"></span>
+            </span>
+          </label>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="symbol-preset">Grupo de símbolos</label>
+          <select id="symbol-preset" name="symbol-preset">
+            <option value="basic">Básico especial: ! @ #</option>
+            <option value="safe">Essenciais seguros: ! @ # $ % &amp; * ?</option>
+            <option value="extended">Estendido: ! @ # $ % &amp; * ( ) - _ = + [ ] { } ?</option>
+            <option value="brackets">Colchetes e agrupadores: ( ) [ ] { } &lt; &gt;</option>
+            <option value="math">Operadores: + - * / = % ^ ~</option>
+            <option value="custom">Personalizar totalmente</option>
+          </select>
+          <p id="symbol-preset-hint" class="hint">Símbolos: ! @ #</p>
+        </div>
+
+        <div id="custom-symbols-group" class="field-group hidden">
+          <label class="field-label" for="allowed-symbols">Símbolos personalizados</label>
+          <input
+            id="allowed-symbols"
+            name="allowed-symbols"
+            type="text"
+            value="!@#"
+            placeholder="Digite os símbolos..."
+            disabled
+          >
+        </div>
+      </article>
+
+      <article class="card result-card">
+        <div class="card-header">
+          <div class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 2 5 5v6c0 5 3.4 9.4 7 11 3.6-1.6 7-6 7-11V5l-7-3Z"></path>
+            </svg>
+          </div>
+          <h2>Resultado</h2>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="generated-password">Sua senha gerada</label>
+          <div class="password-box">
+            <input id="generated-password" type="text" readonly placeholder="Sua senha aparecerá aqui">
+            <button id="copy-button" type="button" class="icon-button" aria-label="Copiar senha">
+              <span class="copy-idle" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"></path>
+                </svg>
+              </span>
+              <span class="copy-success" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="m9 16.2-3.5-3.5L4 14.2 9 19l11-11-1.5-1.5z"></path>
+                </svg>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div class="field-group strength-block">
+          <div class="strength-header">
+            <label class="field-label" for="strength-fill">Força da senha</label>
+            <span id="strength-label" class="strength-label">Aguardando geração</span>
+          </div>
+          <div class="strength-meter" aria-hidden="true">
+            <div id="strength-fill" class="strength-fill"></div>
+          </div>
+          <p id="strength-description" class="hint">O medidor considera tamanho, variedade de caracteres e uso de símbolos.</p>
+        </div>
+
+        <p class="storage-note">Configurações e última execução salvas localmente</p>
+      </article>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
