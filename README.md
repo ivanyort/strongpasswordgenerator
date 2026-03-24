@@ -40,6 +40,9 @@ Os dados persistidos incluem configurações e a última senha gerada.
 ## Estrutura do projeto
 ```text
 .
+├── .gitattributes
+├── .gitignore
+├── .nojekyll
 ├── index.html
 ├── style.css
 ├── script.js
@@ -47,6 +50,17 @@ Os dados persistidos incluem configurações e a última senha gerada.
 ├── README.md
 └── reference/
 ```
+
+## Publicação no GitHub Pages
+O projeto é publicado sem etapa de build, usando os arquivos estáticos da raiz do repositório.
+
+O arquivo `.nojekyll` foi adicionado para garantir que o GitHub Pages entregue o conteúdo diretamente, sem tentar processar o projeto com Jekyll.
+
+## Versionamento
+O repositório inclui:
+
+- `.gitignore` para evitar versionar arquivos locais de sistema, editor e artefatos gerados dentro de `reference/`
+- `.gitattributes` com `LF` normalizado para manter finais de linha consistentes entre ambientes
 
 ## Tipografia
 - Interface principal: `Geist`
