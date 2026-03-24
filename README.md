@@ -47,8 +47,7 @@ Os dados persistidos incluem configurações e a última senha gerada.
 ├── style.css
 ├── script.js
 ├── AGENTS.md
-├── README.md
-└── reference/
+└── README.md
 ```
 
 ## Publicação no GitHub Pages
@@ -59,22 +58,19 @@ O arquivo `.nojekyll` foi adicionado para garantir que o GitHub Pages entregue o
 ## Versionamento
 O repositório inclui:
 
-- `.gitignore` para evitar versionar arquivos locais de sistema, editor e artefatos gerados dentro de `reference/`
+- `.gitignore` para evitar versionar arquivos locais de sistema, editor e diretórios auxiliares não publicados
 - `.gitattributes` com `LF` normalizado para manter finais de linha consistentes entre ambientes
 
 ## Tipografia
 - Interface principal: `Geist`
 - Campo de senha gerada: `Geist Mono`
 
-Essas fontes foram mantidas para aproximar a versão estática do design presente em `reference/`.
+Essas fontes foram mantidas para preservar a identidade visual atual da aplicação estática.
 
 ## Desenvolvimento
 Não há dependências nem etapa obrigatória de build para rodar a aplicação principal.
 
 Basta abrir `index.html` no navegador.
-
-## Referência visual
-O diretório `reference/` contém o design de referência usado para guiar a interface atual. A aplicação principal continua sendo a versão estática da raiz do projeto.
 
 ## Próximas sessões com IA
 - O arquivo `AGENTS.md` mantém o contexto técnico e operacional do projeto.

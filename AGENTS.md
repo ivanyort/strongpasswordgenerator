@@ -3,16 +3,15 @@
 ## Objetivo do projeto
 - Aplicação estática em `HTML`, `CSS` e `JavaScript` puro.
 - O projeto é um gerador de senhas fortes compatível com GitHub Pages.
-- A interface atual foi adaptada para seguir o design presente no diretório `reference/`, mas sem migrar para Next.js ou React.
+- A interface atual segue a implementação estática publicada na raiz do projeto, sem dependência de diretório de referência auxiliar.
 
 ## Arquitetura atual
 - `.gitattributes`: normaliza finais de linha com `LF` no repositório.
-- `.gitignore`: evita versionar arquivos locais e artefatos gerados em `reference/`.
+- `.gitignore`: evita versionar arquivos locais e diretórios auxiliares não publicados.
 - `index.html`: estrutura principal da página.
-- `style.css`: tema visual dark premium, layout em 3 cards, switches, campo de resultado e medidor. A tipografia deve seguir o `reference` com `Geist` para interface e `Geist Mono` para a senha.
+- `style.css`: tema visual dark premium, layout em 3 cards, switches, campo de resultado e medidor. A tipografia usa `Geist` para interface e `Geist Mono` para a senha.
 - `script.js`: geração de senha, persistência no `localStorage`, restauração de estado, cópia e medidor de força.
 - `.nojekyll`: garante publicação direta no GitHub Pages sem processamento por Jekyll.
-- `reference/`: fonte visual de referência. Não é a implementação ativa publicada.
 
 ## Comportamento atual
 - Persiste a última execução em `localStorage` com a chave `strong-password-generator:last-run`.
@@ -34,11 +33,11 @@
 - Grupo de símbolos básico atual: `!@#`
 
 ## Regras de produto já definidas
-- O comportamento atual do projeto prevalece quando houver conflito com `reference/`.
-- O visual deve continuar alinhado ao `reference/`.
+- O comportamento atual da implementação estática publicada prevalece como fonte de verdade do produto.
+- O visual deve continuar alinhado à implementação estática atual, sem depender de diretório auxiliar versionado.
 - A página deve continuar abrindo sem build e ser publicável via GitHub Pages.
 - A publicação no GitHub Pages deve continuar sendo feita a partir da raiz do repositório, com `.nojekyll` presente para evitar processamento por Jekyll.
-- O repositório deve manter `.gitattributes` com normalização de `LF` e `.gitignore` cobrindo arquivos locais comuns e artefatos gerados em `reference/`.
+- O repositório deve manter `.gitattributes` com normalização de `LF` e `.gitignore` cobrindo arquivos locais comuns e diretórios auxiliares não publicados.
 - `AGENTS.md` deve ser mantido atualizado a cada entrega futura.
 - `README.md` deve ser mantido atualizado a cada entrega futura.
 
@@ -61,6 +60,6 @@
 
 ## Observações para implementação
 - Preferir manter ids estáveis do DOM sempre que possível para reduzir impacto no `script.js`.
-- Mudanças visuais devem tentar reproduzir o `reference/` no máximo possível dentro da stack estática.
-- Tipografia também faz parte da fidelidade ao `reference`; não substituir `Geist`/`Geist Mono` por fontes genéricas sem necessidade.
+- Mudanças visuais devem preservar e evoluir a linguagem visual existente dentro da stack estática.
+- Tipografia também faz parte da identidade visual atual; não substituir `Geist`/`Geist Mono` por fontes genéricas sem necessidade.
 - Não substituir a implementação atual por Next.js/React sem pedido explícito.

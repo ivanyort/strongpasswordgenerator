@@ -4,6 +4,4 @@ Thumbs.db
 .vscode/
 .idea/
 
-reference/node_modules/
-reference/.next/
-reference/out/
+reference/
