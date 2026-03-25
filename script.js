@@ -391,24 +391,36 @@ function clearHistory() {
   saveState();
 }
 
-async function copyTextToClipboard(text) {
+function copyWithExecCommand(text, sourceElement = null) {
   const activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const selection = window.getSelection();
+  let helperField = null;
+  const target = sourceElement ?? (() => {
+    helperField = document.createElement("textarea");
+    helperField.value = text;
+    helperField.setAttribute("aria-hidden", "true");
+    helperField.style.position = "fixed";
+    helperField.style.inset = "0 auto auto 0";
+    helperField.style.width = "1px";
+    helperField.style.height = "1px";
+    helperField.style.padding = "0";
+    helperField.style.border = "0";
+    helperField.style.opacity = "0";
+    helperField.style.pointerEvents = "none";
+    document.body.append(helperField);
+    return helperField;
+  })();
 
-  const helperField = document.createElement("textarea");
-  helperField.value = text;
-  helperField.setAttribute("aria-hidden", "true");
-  helperField.style.position = "fixed";
-  helperField.style.inset = "0 auto auto 0";
-  helperField.style.width = "1px";
-  helperField.style.height = "1px";
-  helperField.style.padding = "0";
-  helperField.style.border = "0";
-  helperField.style.opacity = "0";
-  helperField.style.pointerEvents = "none";
-  document.body.append(helperField);
-  helperField.focus();
-  helperField.select();
-  helperField.setSelectionRange(0, helperField.value.length);
+  if (!sourceElement) {
+    target.value = text;
+  }
+
+  target.focus();
+  target.select();
+
+  if (typeof target.setSelectionRange === "function") {
+    target.setSelectionRange(0, target.value.length);
+  }
 
   let wasCopied = false;
 
@@ -418,10 +430,11 @@ async function copyTextToClipboard(text) {
     wasCopied = false;
   }
 
-  helperField.blur();
-  helperField.remove();
+  target.blur();
 
-  const selection = window.getSelection();
+  if (helperField) {
+    helperField.remove();
+  }
 
   if (selection) {
     selection.removeAllRanges();
@@ -431,20 +444,7 @@ async function copyTextToClipboard(text) {
     activeElement.focus({ preventScroll: true });
   }
 
-  if (wasCopied) {
-    return true;
-  }
-
-  if (navigator.clipboard && window.isSecureContext) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  return false;
+  return wasCopied;
 }
 
 function applyStrengthMeter(password, settings) {
@@ -665,6 +665,19 @@ function generatePassword() {
   applyStrengthMeter(password, { ...settings, password });
 }
 
+async function copyTextToClipboard(text, sourceElement = null) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (error) {
+      // Falls back to execCommand for contexts where Clipboard API is denied.
+    }
+  }
+
+  return copyWithExecCommand(text, sourceElement);
+}
+
 async function copyPassword() {
   const password = elements.password.value;
 
@@ -674,7 +687,7 @@ async function copyPassword() {
   }
 
   try {
-    const wasCopied = await copyTextToClipboard(password);
+    const wasCopied = await copyTextToClipboard(password, elements.password);
 
     if (!wasCopied) {
       throw new Error("copy-failed");
