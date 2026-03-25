@@ -346,14 +346,6 @@ function clearHistory() {
 
 async function copyTextToClipboard(text) {
   const activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  const selection = window.getSelection();
-  const storedRanges = [];
-
-  if (selection) {
-    for (let index = 0; index < selection.rangeCount; index += 1) {
-      storedRanges.push(selection.getRangeAt(index).cloneRange());
-    }
-  }
 
   const helperField = document.createElement("textarea");
   helperField.value = text;
@@ -379,14 +371,16 @@ async function copyTextToClipboard(text) {
     wasCopied = false;
   }
 
+  helperField.blur();
   helperField.remove();
+
+  const selection = window.getSelection();
 
   if (selection) {
     selection.removeAllRanges();
-    storedRanges.forEach((range) => selection.addRange(range));
   }
 
-  if (activeElement) {
+  if (activeElement && document.contains(activeElement)) {
     activeElement.focus({ preventScroll: true });
   }
 
