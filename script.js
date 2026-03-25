@@ -294,14 +294,24 @@ function renderHistory() {
     copyAction.className = "history-action-button";
     copyAction.dataset.action = "copy-history-item";
     copyAction.dataset.password = entry.password;
-    copyAction.textContent = "Copiar";
+    copyAction.setAttribute("aria-label", "Copiar senha do histórico");
+    copyAction.innerHTML = `
+      <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+        <path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"></path>
+      </svg>
+    `;
 
     const removeAction = document.createElement("button");
     removeAction.type = "button";
     removeAction.className = "history-action-button danger";
     removeAction.dataset.action = "remove-history-item";
     removeAction.dataset.password = entry.password;
-    removeAction.textContent = "Remover";
+    removeAction.setAttribute("aria-label", "Remover senha do histórico");
+    removeAction.innerHTML = `
+      <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+        <path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm1 6h2v8h-2V9Zm4 0h2v8h-2V9ZM7 9h2v8H7V9Zm-1 12a2 2 0 0 1-2-2V8h16v11a2 2 0 0 1-2 2H6Z"></path>
+      </svg>
+    `;
 
     actions.append(copyAction, removeAction);
     header.append(passwordBlock, actions);
@@ -335,13 +345,27 @@ function clearHistory() {
 }
 
 async function copyTextToClipboard(text) {
+  const activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const selection = window.getSelection();
+  const storedRanges = [];
+
+  if (selection) {
+    for (let index = 0; index < selection.rangeCount; index += 1) {
+      storedRanges.push(selection.getRangeAt(index).cloneRange());
+    }
+  }
+
   const helperField = document.createElement("textarea");
   helperField.value = text;
   helperField.setAttribute("aria-hidden", "true");
   helperField.style.position = "fixed";
-  helperField.style.top = "-9999px";
-  helperField.style.left = "-9999px";
+  helperField.style.inset = "0 auto auto 0";
+  helperField.style.width = "1px";
+  helperField.style.height = "1px";
+  helperField.style.padding = "0";
+  helperField.style.border = "0";
   helperField.style.opacity = "0";
+  helperField.style.pointerEvents = "none";
   document.body.append(helperField);
   helperField.focus();
   helperField.select();
@@ -356,6 +380,15 @@ async function copyTextToClipboard(text) {
   }
 
   helperField.remove();
+
+  if (selection) {
+    selection.removeAllRanges();
+    storedRanges.forEach((range) => selection.addRange(range));
+  }
+
+  if (activeElement) {
+    activeElement.focus({ preventScroll: true });
+  }
 
   if (wasCopied) {
     return true;
