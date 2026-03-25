@@ -7,6 +7,10 @@ const HISTORY_DATE_FORMATTER = new Intl.DateTimeFormat("pt-BR", {
   dateStyle: "short",
   timeStyle: "short",
 });
+const VERSION_DATE_FORMATTER = new Intl.DateTimeFormat("pt-BR", {
+  dateStyle: "short",
+  timeStyle: "short",
+});
 
 const CHARACTER_GROUPS = {
   uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -53,6 +57,8 @@ const elements = {
   strengthDescription: document.querySelector("#strength-description"),
   historyList: document.querySelector("#password-history"),
   historyEmptyState: document.querySelector("#history-empty-state"),
+  versionLabel: document.querySelector("#version-label"),
+  versionDate: document.querySelector("#version-date"),
 };
 
 elements.allowedSymbols.dataset.customSymbols = DEFAULT_CUSTOM_SYMBOLS;
@@ -214,6 +220,47 @@ function normalizeHistory(history) {
   });
 
   return uniqueEntries.sort((current, next) => new Date(next.copiedAt).getTime() - new Date(current.copiedAt).getTime());
+}
+
+function formatVersionDate(value) {
+  return VERSION_DATE_FORMATTER.format(new Date(value));
+}
+
+function applyVersionInfo(version) {
+  if (!version || typeof version !== "object") {
+    elements.versionLabel.textContent = "Versão indisponível";
+    elements.versionDate.textContent = "Não foi possível carregar o deploy atual";
+    return;
+  }
+
+  const commit = typeof version.commit === "string" && version.commit.length > 0
+    ? version.commit.slice(0, 7)
+    : "local";
+  const deployedAt = typeof version.deployedAt === "string" && !Number.isNaN(Date.parse(version.deployedAt))
+    ? formatVersionDate(version.deployedAt)
+    : "Sem data de deploy";
+
+  elements.versionLabel.textContent = `Versão ${commit}`;
+  elements.versionDate.textContent = deployedAt;
+}
+
+async function loadVersionInfo() {
+  try {
+    const response = await window.fetch(`./version.json?ts=${Date.now()}`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("version-unavailable");
+    }
+
+    applyVersionInfo(await response.json());
+  } catch (error) {
+    applyVersionInfo({
+      commit: "local",
+      deployedAt: null,
+    });
+  }
 }
 
 function setMessage(text, type = "") {
@@ -770,3 +817,4 @@ elements.historyList.addEventListener("click", handleHistoryClick);
 });
 
 loadState();
+loadVersionInfo();

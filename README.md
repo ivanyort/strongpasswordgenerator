@@ -30,6 +30,7 @@ Gerador de senhas fortes e seguras feito com `HTML`, `CSS` e `JavaScript` puro, 
 - Remoção individual de itens do histórico
 - Limpeza completa do histórico
 - Persistência da última execução no `localStorage`
+- Exibição da versão publicada da página com hash curto do commit e data do deploy
 
 ## Persistência local
 O app salva o último estado usando a chave:
@@ -45,20 +46,26 @@ Além disso, o app mantém um histórico local das senhas copiadas pelo botão p
 ## Estrutura do projeto
 ```text
 .
+├── .github/workflows/deploy-pages.yml
 ├── .gitattributes
 ├── .gitignore
 ├── .nojekyll
 ├── index.html
 ├── style.css
 ├── script.js
+├── version.json
 ├── AGENTS.md
 └── README.md
 ```
 
 ## Publicação no GitHub Pages
-O projeto é publicado sem etapa de build, usando os arquivos estáticos da raiz do repositório.
+O projeto é publicado no GitHub Pages por GitHub Actions, sem build de framework.
 
-O arquivo `.nojekyll` foi adicionado para garantir que o GitHub Pages entregue o conteúdo diretamente, sem tentar processar o projeto com Jekyll.
+O workflow `.github/workflows/deploy-pages.yml` prepara os arquivos estáticos, gera `version.json` automaticamente com commit e data do deploy e publica o artefato no Pages.
+
+Para esse fluxo funcionar no repositório, o GitHub Pages deve estar configurado com `Source: GitHub Actions`.
+
+O arquivo `.nojekyll` continua presente para garantir entrega direta dos arquivos estáticos.
 
 ## Versionamento
 O repositório inclui:
@@ -84,6 +91,11 @@ Basta abrir `index.html` no navegador.
 - Cada item do histórico pode ser copiado novamente sem alterar a ordem da lista
 - Cada item pode ser removido individualmente
 - Existe também a ação de limpar todo o histórico
+
+## Versão da página
+- A página exibe a versão publicada com hash curto do commit
+- A data mostrada corresponde ao momento do deploy no GitHub Pages
+- Em execução local, a interface mostra `Versão local` até existir um deploy publicado com `version.json` gerado pelo workflow
 
 ## Próximas sessões com IA
 - O arquivo `AGENTS.md` mantém o contexto técnico e operacional do projeto.

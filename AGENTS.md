@@ -6,12 +6,14 @@
 - A interface atual segue a implementação estática publicada na raiz do projeto, sem dependência de diretório de referência auxiliar.
 
 ## Arquitetura atual
+- `.github/workflows/deploy-pages.yml`: publica o site no GitHub Pages via GitHub Actions e gera `version.json` com commit e data do deploy.
 - `.gitattributes`: normaliza finais de linha com `LF` no repositório.
 - `.gitignore`: evita versionar arquivos locais e diretórios auxiliares não publicados.
 - `index.html`: estrutura principal da página.
-- `style.css`: tema visual dark premium, layout em 3 cards, switches, campo de resultado e medidor. A tipografia usa `Geist` para interface e `Geist Mono` para a senha.
-- `script.js`: geração de senha, persistência no `localStorage`, restauração de estado, cópia e medidor de força.
+- `style.css`: tema visual dark premium, layout em 3 cards, card adicional de histórico, campo de resultado, medidor e área de versão publicada.
+- `script.js`: geração de senha, persistência no `localStorage`, restauração de estado, cópia, histórico, medidor e leitura de `version.json`.
 - `.nojekyll`: garante publicação direta no GitHub Pages sem processamento por Jekyll.
+- `version.json`: fallback local da versão exibida na interface; o deploy do Pages substitui esse arquivo por metadados automáticos.
 
 ## Comportamento atual
 - Persiste a última execução em `localStorage` com a chave `strong-password-generator:last-run`.
@@ -32,6 +34,7 @@
   - símbolos customizados
   - excluir caracteres ambíguos
   - histórico visível de senhas copiadas
+- A interface exibe a versão da página com hash curto do commit e data do deploy.
 - Grupo de símbolos básico atual: `!@#`
 - O histórico registra apenas senhas copiadas pelo botão principal de cópia.
 - Cada item do histórico exibe a senha completa e a data/hora da cópia.
@@ -43,7 +46,7 @@
 - O comportamento atual da implementação estática publicada prevalece como fonte de verdade do produto.
 - O visual deve continuar alinhado à implementação estática atual, sem depender de diretório auxiliar versionado.
 - A página deve continuar abrindo sem build e ser publicável via GitHub Pages.
-- A publicação no GitHub Pages deve continuar sendo feita a partir da raiz do repositório, com `.nojekyll` presente para evitar processamento por Jekyll.
+- A publicação no GitHub Pages deve usar GitHub Actions, gerando `version.json` automaticamente no artefato publicado.
 - O repositório deve manter `.gitattributes` com normalização de `LF` e `.gitignore` cobrindo arquivos locais comuns e diretórios auxiliares não publicados.
 - `AGENTS.md` deve ser mantido atualizado a cada entrega futura.
 - `README.md` deve ser mantido atualizado a cada entrega futura.
