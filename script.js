@@ -335,21 +335,13 @@ function clearHistory() {
 }
 
 async function copyTextToClipboard(text) {
-  if (navigator.clipboard && window.isSecureContext) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch (error) {
-      // Fallback below handles browsers or contexts where Clipboard API is unavailable.
-    }
-  }
-
   const helperField = document.createElement("textarea");
   helperField.value = text;
-  helperField.setAttribute("readonly", "");
+  helperField.setAttribute("aria-hidden", "true");
   helperField.style.position = "fixed";
   helperField.style.top = "-9999px";
   helperField.style.left = "-9999px";
+  helperField.style.opacity = "0";
   document.body.append(helperField);
   helperField.focus();
   helperField.select();
@@ -364,7 +356,21 @@ async function copyTextToClipboard(text) {
   }
 
   helperField.remove();
-  return wasCopied;
+
+  if (wasCopied) {
+    return true;
+  }
+
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  return false;
 }
 
 function applyStrengthMeter(password, settings) {
