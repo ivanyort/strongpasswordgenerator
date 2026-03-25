@@ -184,6 +184,30 @@
 
         <p class="storage-note">Configurações e última execução salvas localmente</p>
       </article>
+
+      <article class="card history-card">
+        <div class="card-header">
+          <div class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 2 5 5v6c0 5 3.4 9.4 7 11 3.6-1.6 7-6 7-11V5l-7-3Z"></path>
+            </svg>
+          </div>
+          <h2>Histórico de cópias</h2>
+        </div>
+
+        <section class="field-group history-block" aria-labelledby="history-title">
+          <div class="history-header">
+            <div>
+              <h3 id="history-title" class="field-label">Senhas copiadas</h3>
+              <p class="hint">Somente senhas copiadas pelo botão principal entram na lista.</p>
+            </div>
+            <button id="clear-history-button" type="button" class="secondary-button" disabled>Limpar histórico</button>
+          </div>
+
+          <p id="history-empty-state" class="history-empty">Nenhuma senha copiada ainda.</p>
+          <div id="password-history" class="history-list" aria-live="polite"></div>
+        </section>
+      </article>
     </section>
   </main>
 

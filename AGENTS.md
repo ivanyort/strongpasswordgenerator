@@ -23,6 +23,7 @@
   - símbolos customizados
   - exclusão de ambíguos
   - senha gerada
+  - histórico de senhas copiadas
 - Opções atuais:
   - comprimento mínimo
   - início da senha: aleatória, maiúscula, minúscula, número ou símbolo
@@ -30,7 +31,13 @@
   - preset de símbolos
   - símbolos customizados
   - excluir caracteres ambíguos
+  - histórico visível de senhas copiadas
 - Grupo de símbolos básico atual: `!@#`
+- O histórico registra apenas senhas copiadas pelo botão principal de cópia.
+- Cada item do histórico exibe a senha completa e a data/hora da cópia.
+- Copiar uma senha já existente no botão principal move a entrada para o topo sem duplicar.
+- Copiar a partir do próprio histórico não reinsere nem reordena a lista.
+- O histórico permite remoção individual e limpeza total.
 
 ## Regras de produto já definidas
 - O comportamento atual da implementação estática publicada prevalece como fonte de verdade do produto.

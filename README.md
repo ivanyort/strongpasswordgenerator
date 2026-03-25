@@ -26,6 +26,9 @@ Gerador de senhas fortes e seguras feito com `HTML`, `CSS` e `JavaScript` puro, 
 - Campo para símbolos personalizados
 - Medidor visual de força da senha
 - Cópia rápida da senha gerada
+- Histórico local de senhas copiadas
+- Remoção individual de itens do histórico
+- Limpeza completa do histórico
 - Persistência da última execução no `localStorage`
 
 ## Persistência local
@@ -36,6 +39,8 @@ strong-password-generator:last-run
 ```
 
 Os dados persistidos incluem configurações e a última senha gerada.
+
+Além disso, o app mantém um histórico local das senhas copiadas pelo botão principal `Copiar`, com data e hora da cópia.
 
 ## Estrutura do projeto
 ```text
@@ -71,6 +76,14 @@ Essas fontes foram mantidas para preservar a identidade visual atual da aplicaç
 Não há dependências nem etapa obrigatória de build para rodar a aplicação principal.
 
 Basta abrir `index.html` no navegador.
+
+## Histórico de cópias
+- Apenas a ação no botão principal `Copiar` adiciona senhas ao histórico
+- O histórico é salvo localmente no navegador
+- Senhas repetidas não duplicam: a senha copiada novamente volta para o topo
+- Cada item do histórico pode ser copiado novamente sem alterar a ordem da lista
+- Cada item pode ser removido individualmente
+- Existe também a ação de limpar todo o histórico
 
 ## Próximas sessões com IA
 - O arquivo `AGENTS.md` mantém o contexto técnico e operacional do projeto.

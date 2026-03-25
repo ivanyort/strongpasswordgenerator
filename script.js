@@ -3,6 +3,10 @@ const DEFAULT_SYMBOL_PRESET = "basic";
 const DEFAULT_CUSTOM_SYMBOLS = "!@#";
 const DEFAULT_PASSWORD_START = "random";
 const AMBIGUOUS_CHARACTERS = "O0oIl1|`'\"";
+const HISTORY_DATE_FORMATTER = new Intl.DateTimeFormat("pt-BR", {
+  dateStyle: "short",
+  timeStyle: "short",
+});
 
 const CHARACTER_GROUPS = {
   uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -41,15 +45,19 @@ const elements = {
   excludeAmbiguous: document.querySelector("#exclude-ambiguous"),
   generateButton: document.querySelector("#generate-button"),
   copyButton: document.querySelector("#copy-button"),
+  clearHistoryButton: document.querySelector("#clear-history-button"),
   password: document.querySelector("#generated-password"),
   message: document.querySelector("#form-message"),
   strengthLabel: document.querySelector("#strength-label"),
   strengthFill: document.querySelector("#strength-fill"),
   strengthDescription: document.querySelector("#strength-description"),
+  historyList: document.querySelector("#password-history"),
+  historyEmptyState: document.querySelector("#history-empty-state"),
 };
 
 elements.allowedSymbols.dataset.customSymbols = DEFAULT_CUSTOM_SYMBOLS;
 elements.allowedSymbols.value = DEFAULT_CUSTOM_SYMBOLS;
+let passwordHistory = [];
 
 function uniqueCharacters(value) {
   return [...new Set(value.split(""))].join("");
@@ -167,7 +175,45 @@ function getSettingsFromForm() {
     allowedSymbols,
     excludeAmbiguous,
     password: elements.password.value,
+    history: passwordHistory,
   };
+}
+
+function normalizeHistoryEntry(entry) {
+  if (!entry || typeof entry !== "object" || typeof entry.password !== "string" || entry.password.length === 0) {
+    return null;
+  }
+
+  const copiedAt = typeof entry.copiedAt === "string" && !Number.isNaN(Date.parse(entry.copiedAt))
+    ? entry.copiedAt
+    : new Date().toISOString();
+
+  return {
+    password: entry.password,
+    copiedAt,
+  };
+}
+
+function normalizeHistory(history) {
+  if (!Array.isArray(history)) {
+    return [];
+  }
+
+  const uniqueEntries = [];
+  const seenPasswords = new Set();
+
+  history.forEach((entry) => {
+    const normalizedEntry = normalizeHistoryEntry(entry);
+
+    if (!normalizedEntry || seenPasswords.has(normalizedEntry.password)) {
+      return;
+    }
+
+    seenPasswords.add(normalizedEntry.password);
+    uniqueEntries.push(normalizedEntry);
+  });
+
+  return uniqueEntries.sort((current, next) => new Date(next.copiedAt).getTime() - new Date(current.copiedAt).getTime());
 }
 
 function setMessage(text, type = "") {
@@ -200,6 +246,125 @@ function updateSymbolsFieldState() {
 function saveState() {
   const state = getSettingsFromForm();
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function formatCopiedAt(value) {
+  return HISTORY_DATE_FORMATTER.format(new Date(value));
+}
+
+function renderHistory() {
+  elements.historyList.innerHTML = "";
+
+  if (passwordHistory.length === 0) {
+    elements.historyEmptyState.classList.remove("hidden");
+    elements.clearHistoryButton.disabled = true;
+    return;
+  }
+
+  elements.historyEmptyState.classList.add("hidden");
+  elements.clearHistoryButton.disabled = false;
+
+  const fragment = document.createDocumentFragment();
+
+  passwordHistory.forEach((entry) => {
+    const item = document.createElement("article");
+    item.className = "history-item";
+    item.dataset.password = entry.password;
+
+    const header = document.createElement("div");
+    header.className = "history-item-head";
+
+    const passwordBlock = document.createElement("div");
+
+    const passwordValue = document.createElement("p");
+    passwordValue.className = "history-password";
+    passwordValue.textContent = entry.password;
+
+    const meta = document.createElement("p");
+    meta.className = "history-meta";
+    meta.textContent = `Copiada em ${formatCopiedAt(entry.copiedAt)}`;
+
+    passwordBlock.append(passwordValue, meta);
+
+    const actions = document.createElement("div");
+    actions.className = "history-actions";
+
+    const copyAction = document.createElement("button");
+    copyAction.type = "button";
+    copyAction.className = "history-action-button";
+    copyAction.dataset.action = "copy-history-item";
+    copyAction.dataset.password = entry.password;
+    copyAction.textContent = "Copiar";
+
+    const removeAction = document.createElement("button");
+    removeAction.type = "button";
+    removeAction.className = "history-action-button danger";
+    removeAction.dataset.action = "remove-history-item";
+    removeAction.dataset.password = entry.password;
+    removeAction.textContent = "Remover";
+
+    actions.append(copyAction, removeAction);
+    header.append(passwordBlock, actions);
+    item.append(header);
+    fragment.append(item);
+  });
+
+  elements.historyList.append(fragment);
+}
+
+function updateHistory(password) {
+  const copiedAt = new Date().toISOString();
+  passwordHistory = [
+    { password, copiedAt },
+    ...passwordHistory.filter((entry) => entry.password !== password),
+  ];
+  renderHistory();
+  saveState();
+}
+
+function removeHistoryItem(password) {
+  passwordHistory = passwordHistory.filter((entry) => entry.password !== password);
+  renderHistory();
+  saveState();
+}
+
+function clearHistory() {
+  passwordHistory = [];
+  renderHistory();
+  saveState();
+}
+
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (error) {
+      // Fallback below handles browsers or contexts where Clipboard API is unavailable.
+    }
+  }
+
+  const helperField = document.createElement("textarea");
+  helperField.value = text;
+  helperField.setAttribute("readonly", "");
+  helperField.style.position = "fixed";
+  helperField.style.top = "-9999px";
+  helperField.style.left = "-9999px";
+  document.body.append(helperField);
+  helperField.focus();
+  helperField.select();
+  helperField.setSelectionRange(0, helperField.value.length);
+
+  let wasCopied = false;
+
+  try {
+    wasCopied = document.execCommand("copy");
+  } catch (error) {
+    wasCopied = false;
+  }
+
+  helperField.remove();
+  return wasCopied;
 }
 
 function applyStrengthMeter(password, settings) {
@@ -429,7 +594,13 @@ async function copyPassword() {
   }
 
   try {
-    await navigator.clipboard.writeText(password);
+    const wasCopied = await copyTextToClipboard(password);
+
+    if (!wasCopied) {
+      throw new Error("copy-failed");
+    }
+
+    updateHistory(password);
     setMessage("Senha copiada para a área de transferência.", "success");
     elements.copyButton.classList.add("copied");
     window.setTimeout(() => {
@@ -441,10 +612,26 @@ async function copyPassword() {
   }
 }
 
+async function copyHistoryPassword(password) {
+  try {
+    const wasCopied = await copyTextToClipboard(password);
+
+    if (!wasCopied) {
+      throw new Error("copy-failed");
+    }
+
+    setMessage("Senha do histórico copiada para a área de transferência.", "success");
+  } catch (error) {
+    setMessage("Não foi possível copiar automaticamente. Copie manualmente.", "error");
+  }
+}
+
 function applyState(state) {
   if (!state || typeof state !== "object") {
+    passwordHistory = [];
     elements.copyButton.classList.remove("copied");
     updateSymbolsFieldState();
+    renderHistory();
     applyStrengthMeter("", getSettingsFromForm());
     return;
   }
@@ -461,9 +648,11 @@ function applyState(state) {
     ? uniqueCharacters(state.customSymbols)
     : DEFAULT_CUSTOM_SYMBOLS;
   elements.password.value = state.password ?? "";
+  passwordHistory = normalizeHistory(state.history);
   elements.copyButton.classList.remove("copied");
 
   updateSymbolsFieldState();
+  renderHistory();
   applyStrengthMeter(elements.password.value, getSettingsFromForm());
 }
 
@@ -472,7 +661,9 @@ function loadState() {
     const rawValue = window.localStorage.getItem(STORAGE_KEY);
 
     if (!rawValue) {
+      passwordHistory = [];
       updateSymbolsFieldState();
+      renderHistory();
       applyStrengthMeter("", getSettingsFromForm());
       return;
     }
@@ -480,9 +671,31 @@ function loadState() {
     applyState(JSON.parse(rawValue));
     setMessage("Última execução restaurada do navegador.", "success");
   } catch (error) {
+    passwordHistory = [];
     updateSymbolsFieldState();
+    renderHistory();
     applyStrengthMeter("", getSettingsFromForm());
     setMessage("Não foi possível restaurar a última execução salva.", "error");
+  }
+}
+
+function handleHistoryClick(event) {
+  const actionButton = event.target.closest("[data-action]");
+
+  if (!actionButton) {
+    return;
+  }
+
+  const { action, password } = actionButton.dataset;
+
+  if (action === "copy-history-item" && password) {
+    copyHistoryPassword(password);
+    return;
+  }
+
+  if (action === "remove-history-item" && password) {
+    removeHistoryItem(password);
+    setMessage("Senha removida do histórico.", "success");
   }
 }
 
@@ -502,6 +715,11 @@ function handleConfigurationChange() {
 
 elements.generateButton.addEventListener("click", generatePassword);
 elements.copyButton.addEventListener("click", copyPassword);
+elements.clearHistoryButton.addEventListener("click", () => {
+  clearHistory();
+  setMessage("Histórico limpo com sucesso.", "success");
+});
+elements.historyList.addEventListener("click", handleHistoryClick);
 
 [
   elements.length,
